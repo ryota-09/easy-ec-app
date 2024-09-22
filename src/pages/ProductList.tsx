@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Grid, Card, CardContent, CardMedia, Typography, Button, Box } from '@mui/material';
+import { Grid, Card, CardContent, CardMedia, Typography, Button, Box } from '@mui/material';
 import { Product } from '../types';
 import { fetchItems } from '../lib/fetch';
 import Layout from '../components/Layout';

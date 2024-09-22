@@ -61,28 +61,35 @@ const ProductDetail: React.FC = () => {
   };
 
   if (!product) {
-    return <div>Loading...</div>;
+    return (
+      <Layout>
+        <Typography variant="h4" component="h1" gutterBottom>
+          ローディング中...
+        </Typography>
+      </Layout>
+    )
   }
 
   return (
     <Layout>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Box my={4} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <img
           src={product.imagePath}
           alt={product.name}
           style={{ width: '100%', maxWidth: '400px', objectFit: 'cover' }}
         />
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      </Box>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           {product.name}
         </Typography>
-        <Typography variant="body1" paragraph>
+        <Typography variant="body1">
           {product.description}
         </Typography>
-
-        <FormControl fullWidth margin="normal">
-          <InputLabel id="size-select-label">サイズ</InputLabel>
+        <Typography variant="h6" gutterBottom>
+          サイズ
+        </Typography>
+        <FormControl size='small' style={{ width: "30%" }}>
           <Select
             labelId="size-select-label"
             value={size}
@@ -114,15 +121,16 @@ const ProductDetail: React.FC = () => {
         <Typography variant="h6" gutterBottom>
           価格: ¥{calculateTotalPrice()}
         </Typography>
-
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleAddToCart}
-          style={{ marginTop: '1.5rem', width: '100%' }}
-        >
-          カートに追加
-        </Button>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAddToCart}
+            style={{ marginTop: '1.5rem', width: '50%' }}
+          >
+            カートに追加
+          </Button>
+        </Box>
       </div>
     </Layout>
   );
