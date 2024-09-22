@@ -1,29 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
-import { CartItem } from '../types';
+import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Box } from '@mui/material';
 import Layout from '../components/Layout';
+import { useGlobalState } from '../providers';
 
 const ShoppingCart: React.FC = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const { state } = useGlobalState(); // Access the global state
+  const cartItems = state.shoppingCart || [];
 
-  useEffect(() => {
-    // カート内のアイテムを取得（ローカルストレージやAPIから）
-    // この例では、ダミーデータを使用します
-    setCartItems([
-      { id: 1, name: 'Product 1', size: 'M', price: 1000, quantity: 1 },
-      { id: 2, name: 'Product 2', size: 'L', price: 1700, quantity: 2 },
-      // 他のカートアイテム...
-    ]);
-  }, []);
+  const calculateItemPrice = (item: any) => {
+    const basePrice = item.size === 'M' ? 1000 : 1700; // Example base price logic, adjust as needed
+    const toppingsPrice = item.toppings.reduce(
+      (total: number, topping: any) => total + (item.size === 'M' ? topping.priceM : topping.priceL),
+      0
+    );
+    return basePrice + toppingsPrice;
+  };
 
-  const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  const totalPrice = cartItems.reduce(
+    (total: number, item: any) => total + calculateItemPrice(item) * item.quantity,
+    0
+  );
 
   return (
     <Layout>
-      <Typography variant="h4" component="h1" gutterBottom>
-        ショッピングカート
-      </Typography>
+      <Box my={4}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          ショッピングカート
+        </Typography>
+      </Box>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -32,21 +37,29 @@ const ShoppingCart: React.FC = () => {
               <TableCell>サイズ</TableCell>
               <TableCell align="right">価格</TableCell>
               <TableCell align="right">数量</TableCell>
+              <TableCell align="right">トッピング</TableCell>
               <TableCell align="right">小計</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {cartItems.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.name}</TableCell>
+            {cartItems.map((item: any) => (
+              <TableRow key={item.product.id}>
+                <TableCell>{item.product.name}</TableCell>
                 <TableCell>{item.size}</TableCell>
-                <TableCell align="right">¥{item.price}</TableCell>
+                <TableCell align="right">¥{calculateItemPrice(item)}</TableCell>
                 <TableCell align="right">{item.quantity}</TableCell>
-                <TableCell align="right">¥{item.price * item.quantity}</TableCell>
+                <TableCell align="right">
+                  {item.toppings.map((topping: any) => (
+                    <div key={topping.id}>
+                      {topping.name} (¥{item.size === 'M' ? topping.priceM : topping.priceL})
+                    </div>
+                  ))}
+                </TableCell>
+                <TableCell align="right">¥{calculateItemPrice(item) * item.quantity}</TableCell>
               </TableRow>
             ))}
             <TableRow>
-              <TableCell colSpan={4} align="right">合計</TableCell>
+              <TableCell colSpan={5} align="right">合計</TableCell>
               <TableCell align="right">¥{totalPrice}</TableCell>
             </TableRow>
           </TableBody>

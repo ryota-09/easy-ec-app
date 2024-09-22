@@ -30,18 +30,30 @@ export type CartItem = {
 }
 
 export type OrderItem = {
-  productId: string;
+  product: Product;
   size: 'M' | 'L';
   quantity: number;
   toppings: Topping[];
 }
 
+export type OrderFormItem = {
+  productId: string
+  size: 'M' | 'L';
+  quantity: number;
+  toppingIds: string[]
+}
+
 export type OrderFormData = {
-  name: string;
-  email: string;
-  zipcode: string;
-  address: string;
-  tel: string;
-  deliveryTime: string;
-  paymentMethod: string;
+  userId: string
+  status: number
+  totalPrice: number
+  orderDate: string
+  destinationName: string
+  destinationEmail:  string
+  destinationZipcode: string
+  destinationAddress: string
+  destinationTel: string
+  deliveryTime: string
+  paymentMethod: string
+  orderList: OrderFormItem[]
 }

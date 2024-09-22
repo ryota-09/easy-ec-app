@@ -1,18 +1,41 @@
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Grid, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { Typography, TextField, Button, Grid, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box } from '@mui/material';
 import { OrderFormData } from '../types';
 import Layout from '../components/Layout';
+import { useGlobalState } from '../providers';
+import { registerOrder } from '../lib/fetch';
 
 const Checkout: React.FC = () => {
   const [formData, setFormData] = useState<OrderFormData>({
-    name: '',
-    email: '',
-    zipcode: '',
-    address: '',
-    tel: '',
-    deliveryTime: '',
-    paymentMethod: '',
+    userId: "00a717b2-3e60-47be-9ea1-7797fb158efc",
+    destinationName: "テスト",
+    destinationEmail: "test@example.us",
+    destinationZipcode: "0001111",
+    destinationAddress: "東京都",
+    destinationTel: "000-0000",
+    deliveryTime: "10:00-12:00",
+    paymentMethod: "0",
+    orderDate: new Date().toISOString(),
+    totalPrice: 0,
+    status: 0,
+    orderList: []
   });
+  const { state } = useGlobalState(); // Access the global state
+  const cartItems = state.shoppingCart || [];
+
+  const calculateItemPrice = (item: any) => {
+    const basePrice = item.size === 'M' ? 1000 : 1700; // Example base price logic, adjust as needed
+    const toppingsPrice = item.toppings.reduce(
+      (total: number, topping: any) => total + (item.size === 'M' ? topping.priceM : topping.priceL),
+      0
+    );
+    return basePrice + toppingsPrice;
+  };
+
+  const totalPrice = cartItems.reduce(
+    (total: number, item: any) => total + calculateItemPrice(item) * item.quantity,
+    0
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -24,26 +47,41 @@ const Checkout: React.FC = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // ここで注文処理を行います（APIコールなど）
-    console.log('Order submitted:', formData);
+    const targetData = {
+      ...formData,
+      totalPrice: totalPrice,
+      orderList: state.shoppingCart.map((item) => (
+        {
+          productId: item.product.id,
+          size: item.size,
+          quantity: item.quantity,
+          toppingIds: item.toppings.map((topping) => topping.id)
+        }
+      ))
+    }
+
+    const data = await registerOrder(targetData);
+    console.log('Success posting order:', data);
   };
 
   return (
     <Layout>
-      <Typography variant="h4" component="h1" gutterBottom>
-        購入手続き
-      </Typography>
+      <Box my={4}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          購入手続き
+        </Typography>
+      </Box>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <TextField
               required
               fullWidth
-              name="name"
+              name="destinationName"
               label="お名前"
-              value={formData.name}
+              value={formData.destinationName}
               onChange={handleChange}
             />
           </Grid>
@@ -51,10 +89,10 @@ const Checkout: React.FC = () => {
             <TextField
               required
               fullWidth
-              name="email"
+              name="destinationEmail"
               label="メールアドレス"
               type="email"
-              value={formData.email}
+              value={formData.destinationEmail}
               onChange={handleChange}
             />
           </Grid>
@@ -62,9 +100,9 @@ const Checkout: React.FC = () => {
             <TextField
               required
               fullWidth
-              name="zipcode"
+              name="destinationZipcode"
               label="郵便番号"
-              value={formData.zipcode}
+              value={formData.destinationZipcode}
               onChange={handleChange}
             />
           </Grid>
@@ -72,9 +110,9 @@ const Checkout: React.FC = () => {
             <TextField
               required
               fullWidth
-              name="address"
+              name="destinationAddress"
               label="住所"
-              value={formData.address}
+              value={formData.destinationAddress}
               onChange={handleChange}
             />
           </Grid>
@@ -82,9 +120,9 @@ const Checkout: React.FC = () => {
             <TextField
               required
               fullWidth
-              name="tel"
+              name="destinationTel"
               label="電話番号"
-              value={formData.tel}
+              value={formData.destinationTel}
               onChange={handleChange}
             />
           </Grid>
@@ -112,11 +150,49 @@ const Checkout: React.FC = () => {
                 value={formData.paymentMethod}
                 onChange={handleSelectChange}
               >
-                <MenuItem value="credit-card">クレジットカード</MenuItem>
-                <MenuItem value="bank-transfer">銀行振込</MenuItem>
-                <MenuItem value="cash-on-delivery">代金引換</MenuItem>
+                <MenuItem value="0">クレジットカード</MenuItem>
+                <MenuItem value="1">銀行振込</MenuItem>
+                <MenuItem value="2">代金引換</MenuItem>
               </Select>
             </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>商品名</TableCell>
+                    <TableCell>サイズ</TableCell>
+                    <TableCell align="right">価格</TableCell>
+                    <TableCell align="right">数量</TableCell>
+                    <TableCell align="right">トッピング</TableCell>
+                    <TableCell align="right">小計</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {cartItems.map((item: any) => (
+                    <TableRow key={item.product.id}>
+                      <TableCell>{item.product.name}</TableCell>
+                      <TableCell>{item.size}</TableCell>
+                      <TableCell align="right">¥{calculateItemPrice(item)}</TableCell>
+                      <TableCell align="right">{item.quantity}</TableCell>
+                      <TableCell align="right">
+                        {item.toppings.map((topping: any) => (
+                          <div key={topping.id}>
+                            {topping.name} (¥{item.size === 'M' ? topping.priceM : topping.priceL})
+                          </div>
+                        ))}
+                      </TableCell>
+                      <TableCell align="right">¥{calculateItemPrice(item) * item.quantity}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell colSpan={5} align="right">合計</TableCell>
+                    <TableCell align="right">¥{totalPrice}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Grid>
         </Grid>
         <Button

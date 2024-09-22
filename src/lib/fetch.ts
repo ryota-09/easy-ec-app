@@ -1,4 +1,5 @@
 import { API_KEY, API_URL } from "../config";
+import { OrderFormData } from "../types";
 
 export const fetchItems = async () => {
   const res = await fetch(`${API_URL}/items`, {
@@ -32,6 +33,19 @@ export const fetchToppings = async () => {
       'Content-Type': 'application/json',
       "X-API-KEY": API_KEY
     },
+  });
+  return res.json();
+}
+
+export const registerOrder = async (data: OrderFormData) => {
+  const res = await fetch(`${API_URL}/orders`, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json',
+      "X-API-KEY": API_KEY
+    },
+    body: JSON.stringify(data),
   });
   return res.json();
 }

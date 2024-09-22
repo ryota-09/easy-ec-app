@@ -42,7 +42,7 @@ const ProductDetail: React.FC = () => {
     dispatch({
       type: "setShoppingCart",
       payload: [...state.shoppingCart, {
-        productId: product.id,
+        product: product,
         size,
         quantity: 1,
         toppings: selectedToppings
