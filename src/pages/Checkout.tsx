@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Typography, TextField, Button, Grid, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import { OrderFormData } from '../types';
+import Layout from '../components/Layout';
 
 const Checkout: React.FC = () => {
   const [formData, setFormData] = useState<OrderFormData>({
@@ -30,7 +31,7 @@ const Checkout: React.FC = () => {
   };
 
   return (
-    <Container>
+    <Layout>
       <Typography variant="h4" component="h1" gutterBottom>
         購入手続き
       </Typography>
@@ -127,7 +128,7 @@ const Checkout: React.FC = () => {
           注文を確定する
         </Button>
       </form>
-    </Container>
+    </Layout>
   );
 };
 

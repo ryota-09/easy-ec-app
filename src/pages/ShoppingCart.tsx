@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
 import { CartItem } from '../types';
+import Layout from '../components/Layout';
 
 const ShoppingCart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -19,7 +20,7 @@ const ShoppingCart: React.FC = () => {
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
-    <Container>
+    <Layout>
       <Typography variant="h4" component="h1" gutterBottom>
         ショッピングカート
       </Typography>
@@ -60,7 +61,7 @@ const ShoppingCart: React.FC = () => {
       >
         購入手続きへ
       </Button>
-    </Container>
+    </Layout>
   );
 };
 

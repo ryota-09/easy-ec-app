@@ -12,6 +12,30 @@ export const fetchItems = async () => {
   return res.json();
 }
 
+export const fetchItemDetail = async (id: string) => {
+  const res = await fetch(`${API_URL}/items/${id}`, {
+    method: 'GET',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json',
+      "X-API-KEY": API_KEY
+    },
+  });
+  return res.json();
+}
+
+export const fetchToppings = async () => {
+  const res = await fetch(`${API_URL}/toppings`, {
+    method: 'GET',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json',
+      "X-API-KEY": API_KEY
+    },
+  });
+  return res.json();
+}
+
 // export const registerUser = async (data: RegisterUser) => {
 //   const res = await fetch(`${API_URL}/users`, {
 //     method: 'POST',
