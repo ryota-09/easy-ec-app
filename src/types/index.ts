@@ -1,7 +1,12 @@
 // src/types.ts
+export type User = {
+  id: string;
+  userName: string;
+  email: string;
+}
 
-export interface Product {
-  id: number;
+export type Product = {
+  id: string;
   name: string;
   description: string;
   priceM: number;
@@ -9,22 +14,29 @@ export interface Product {
   imagePath: string;
 }
 
-export interface Topping {
-  id: number;
+export type Topping = {
+  id: string;
   name: string;
   priceM: number;
   priceL: number;
 }
 
-export interface CartItem {
-  id: number;
+export type CartItem = {
+  id: string;
   name: string;
   size: 'M' | 'L';
   price: number;
   quantity: number;
 }
 
-export interface OrderFormData {
+export type OrderItem = {
+  productId: string;
+  size: 'M' | 'L';
+  quantity: number;
+  toppings: Topping[];
+}
+
+export type OrderFormData = {
   name: string;
   email: string;
   zipcode: string;

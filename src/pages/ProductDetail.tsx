@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Typography, Button, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, FormControlLabel, Checkbox, Box } from '@mui/material';
+import { Typography, Button, FormControl, Select, MenuItem, SelectChangeEvent, FormControlLabel, Checkbox, Box } from '@mui/material';
 import { Product, Topping } from '../types';
 import { fetchItemDetail, fetchToppings } from '../lib/fetch';
 import Layout from '../components/Layout';
+import { useGlobalState } from '../providers';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { state, dispatch } = useGlobalState();
   const [product, setProduct] = useState<Product | null>(null);
   const [size, setSize] = useState<'M' | 'L'>('M');
   const [toppings, setToppings] = useState<Topping[]>([]);
   const [selectedToppings, setSelectedToppings] = useState<Topping[]>([]);
+  const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
     if (!id) return;
@@ -35,7 +38,19 @@ const ProductDetail: React.FC = () => {
   }, [id]);
 
   const handleAddToCart = () => {
-    console.log('Added to cart:', { product, size, selectedToppings });
+    if (!product) return;
+    dispatch({
+      type: "setShoppingCart",
+      payload: [...state.shoppingCart, {
+        productId: product.id,
+        size,
+        quantity: 1,
+        toppings: selectedToppings
+      }]
+    })
+    setMessage('✅ カートに追加しました！');
+    setSize('M');
+    setSelectedToppings([]);
   };
 
   const handleSizeChange = (event: SelectChangeEvent<'M' | 'L'>) => {
@@ -121,6 +136,11 @@ const ProductDetail: React.FC = () => {
         <Typography variant="h6" gutterBottom>
           価格: ¥{calculateTotalPrice()}
         </Typography>
+        {message && (
+          <Typography sx={{ textAlign: "center" }}>
+            {message}
+          </Typography>
+        )}
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Button
             variant="contained"
